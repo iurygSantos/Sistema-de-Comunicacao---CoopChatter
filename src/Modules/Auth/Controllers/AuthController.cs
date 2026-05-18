@@ -67,15 +67,24 @@ public class AuthController : ControllerBase
     [HttpGet("me")]
     public async Task<IActionResult> Me()
     {
-        var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var user = await _context.usuarios.FindAsync(int.Parse(userId));
+        try 
+        {
 
-        if (user == null) return NotFound("Usuário não encontrado");
+            var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            
+            var user = await _context.usuarios.FindAsync(int.Parse(userId));
 
-        return Ok(new { 
-            id = user.id,
-            name = user.name,
-            username = user.username
-        });
+            if (user == null) return NotFound("Usuário não encontrado");
+
+            return Ok(new { 
+                id = user.id,
+                name = user.name,
+                username = user.username
+            });
+        }
+        catch (Exception e)
+        {
+            return Unauthorized(e.Message);
+        }
     }
 }
